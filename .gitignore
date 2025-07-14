@@ -37,8 +37,8 @@ Thumbs.db
 
 # Model files (if large)
 *.h5
-*.keras
-model/
+# *.keras
+# model/
 
 # Images directory (if contains large files)
 images/
