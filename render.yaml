@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: tomato-disease-api
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn infer:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: PORT
+        value: 10000
+    autoDeploy: true
+    branch: main
+    repo: https://github.com/philipakomolafe/tomato-disease-detection
+    region: oregon
+    scaling:
+      minInstances: 1
+      maxInstances: 3
