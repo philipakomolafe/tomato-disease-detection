@@ -16,6 +16,15 @@ sys.path.append(str(root))
 path = os.path.join(root, 'model', 'custom_model.keras')
 image_dir = os.path.join(root, 'images')
 
+# Class mapping from your training data
+CLASS_NAMES = {
+    0: 'Bacterial Spot and Speck of Tomato',
+    1: 'Early blight',
+    2: 'Grey leaf spot (fungi)',
+    3: 'Healthy',
+    4: 'Late Blight'
+}
+
 img_ext = ['*.png', "*.jpg", "*.bmp", "*.jpeg"]
 
 img_paths = []
@@ -39,3 +48,30 @@ def preprocess_image(img_data, target_size=(224, 224)):
     
     img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
     return img_array
+
+def interpret_prediction(prediction_array, top_k=3):
+    """
+    Convert model prediction to readable format with class names and confidence scores
+    
+    Args:
+        prediction_array: numpy array with prediction probabilities
+        top_k: number of top predictions to return
+    
+    Returns:
+        dict with predicted class, confidence, and top predictions
+    """
+    prediction = np.squeeze(prediction_array)
+    top_indices = np.argsort(prediction)[-top_k:][::-1]
+    
+    results = []
+    for idx in top_indices:
+        results.append({
+            "class": CLASS_NAMES[idx],
+            "confidence": float(prediction[idx])
+        })
+    
+    return {
+        "predicted_class": CLASS_NAMES[np.argmax(prediction)],
+        "confidence_percentage": f'{float(np.max(prediction)) * 100:.2f}%',
+        "top_predictions": results
+    }
