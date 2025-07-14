@@ -9,7 +9,7 @@ from tensorflow.keras.preprocessing import image
 from PIL import Image
 import io
 
-root = Path(__file__).parent.parent
+root = Path(__file__).parent
 sys.path.append(str(root))
 
 # Define the model path
