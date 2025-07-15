@@ -5,4 +5,5 @@ pillow
 numpy
 python-multipart
 gunicorn
+loguru
 requests
