@@ -1,3 +1,14 @@
+"""
+Tomato Disease Detection Feature Module
+
+This module provides core functionality for tomato plant disease detection using deep learning.
+It includes image preprocessing, model loading, prediction interpretation, and plant validation
+using MobileNetV2 for ensuring uploaded images contain plant/vegetation content.
+
+Author: Phil. A.O
+Version: 1.0.0
+"""
+
 import os
 import sys
 import glob
@@ -51,10 +62,41 @@ for ext in img_ext:
     img_paths.extend(glob.glob(os.path.join(image_dir, '**', ext), recursive=True))
 
 def load_model(model_path: str = path):
+    """
+    Load a pre-trained Keras model for tomato disease detection.
+    
+    Args:
+        model_path (str): Path to the saved Keras model file (.keras format)
+        
+    Returns:
+        tf.keras.Model: Loaded TensorFlow/Keras model ready for prediction
+        
+    Raises:
+        FileNotFoundError: If model file doesn't exist at specified path
+        Exception: If model loading fails due to compatibility or corruption issues
+    """
     return tf_load_model(model_path)
 
 
 def preprocess_image(img_data, target_size=(224, 224)):
+    """
+    Preprocess image data for model prediction.
+    
+    Handles both file paths and byte data, converts to RGB format,
+    resizes to target dimensions, normalizes pixel values to [0,1],
+    and adds batch dimension for model compatibility.
+    
+    Args:
+        img_data (bytes or str): Image data as bytes or file path
+        target_size (tuple): Target image dimensions (width, height)
+        
+    Returns:
+        numpy.ndarray: Preprocessed image array with shape (1, height, width, 3)
+        
+    Raises:
+        PIL.UnidentifiedImageError: If image data is corrupted or invalid format
+        ValueError: If image cannot be processed or resized
+    """
     # Handle both file path and byte data
     if isinstance(img_data, bytes):
         img = Image.open(io.BytesIO(img_data))
@@ -70,14 +112,24 @@ def preprocess_image(img_data, target_size=(224, 224)):
 
 def interpret_prediction(prediction_array, top_k=3):
     """
-    Convert model prediction to readable format with class names and confidence scores
+    Convert model prediction probabilities to human-readable format.
+    
+    Takes raw model output and converts it to class names with confidence scores,
+    providing both the top prediction and a ranked list of alternatives.
     
     Args:
-        prediction_array: numpy array with prediction probabilities
-        top_k: number of top predictions to return
-    
+        prediction_array (numpy.ndarray): Raw prediction probabilities from model
+        top_k (int): Number of top predictions to include in results
+        
     Returns:
-        dict with predicted class, confidence, and top predictions
+        dict: Dictionary containing:
+            - predicted_class (str): Name of the most likely disease class
+            - confidence_percentage (str): Confidence as formatted percentage
+            - top_predictions (list): List of top predictions with classes and confidences
+            
+    Raises:
+        IndexError: If prediction array doesn't match expected class count
+        ValueError: If prediction array contains invalid values
     """
     try:
         prediction = np.squeeze(prediction_array)
@@ -106,7 +158,20 @@ def interpret_prediction(prediction_array, top_k=3):
         }
 
 def load_plant_validator():
-    """Load MobileNetV2 for plant/vegetation validation"""
+    """
+    Load and initialize MobileNetV2 model for plant/vegetation validation.
+    
+    Uses ImageNet pre-trained weights to classify images and determine if they
+    contain plant or vegetation content. Model is loaded once and cached globally
+    to avoid repeated loading overhead.
+    
+    Returns:
+        tf.keras.Model or None: Loaded MobileNetV2 model, or None if loading fails
+        
+    Raises:
+        ImportError: If TensorFlow or model dependencies are missing
+        MemoryError: If insufficient memory to load the model
+    """
     global PLANT_VALIDATOR 
     
     if PLANT_VALIDATOR is None:
@@ -124,14 +189,28 @@ def load_plant_validator():
 
 
 def is_plant_image(img_array, confidence_threshold=0.1):
-    """Check if the image contains plant/vegetation using MobileNetV2
+    """
+    Validate if an image contains plant or vegetation content using MobileNetV2.
+    
+    Uses pre-trained MobileNetV2 to classify the image and checks if any of the
+    top predictions correspond to plant-related ImageNet classes. This helps
+    filter out non-plant images before disease detection.
     
     Args:
-        img_array: preprocessed image array
-        confidence_threshold: minimum confidence for plant detection
-
+        img_array (numpy.ndarray): Preprocessed image array with shape (1, 224, 224, 3)
+        confidence_threshold (float): Minimum confidence score (0.0-1.0) required 
+                                    for positive plant detection
+        
     Returns:
-        dict with validation result
+        dict: Dictionary containing:
+            - is_plant (bool): True if plant/vegetation detected above threshold
+            - plant_confidence (float): Highest confidence score for plant classes
+            - top_predictions (list): Top 5 ImageNet class predictions
+            - reason (str): Human-readable explanation of the result
+            
+    Raises:
+        ValueError: If img_array has incorrect shape or invalid confidence_threshold
+        RuntimeError: If MobileNetV2 prediction fails
     """
 
     try:

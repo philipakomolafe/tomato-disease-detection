@@ -1,3 +1,20 @@
+"""
+Tomato Disease Detection API Server
+
+FastAPI-based web service for detecting diseases in tomato plants using deep learning.
+Provides REST endpoints for image upload, plant validation, disease classification,
+and treatment recommendations.
+
+Features:
+- Plant/vegetation validation using MobileNetV2
+- Disease classification using custom CNN model
+- Treatment recommendations for detected diseases
+- Comprehensive error handling and validation
+
+Author: Phil. A.O
+Version: 1.0.0
+"""
+
 import os
 from fastapi import FastAPI, UploadFile, File
 from feature import preprocess_image, load_model, interpret_prediction, is_plant_image
@@ -16,6 +33,19 @@ MODEL = None
 
 @app.on_event("startup")
 async def startup_event():
+    """
+    Initialize the application on startup.
+    
+    Loads the tomato disease detection model into memory for faster
+    prediction responses. Handles loading errors gracefully by setting
+    MODEL to None, which triggers lazy loading on first prediction.
+    
+    Global Variables:
+        MODEL: Stores the loaded TensorFlow/Keras model instance
+        
+    Raises:
+        Exception: Catches and logs any model loading errors
+    """
     global MODEL
     try:
         # Try to load model if it exists
@@ -26,6 +56,15 @@ async def startup_event():
 
 @app.get("/")
 async def home():
+    """
+    Root endpoint providing API information and status.
+    
+    Returns basic information about the API including supported disease classes,
+    version information, and current operational status.
+    
+    Returns:
+        dict: JSON response containing API metadata and supported classes
+    """
     return {
         "Message": "Welcome to the Tomato Inference API",
         "version": "1.0.0",
@@ -43,12 +82,29 @@ async def home():
 
 @app.get("/health")
 async def health_check():
+    """
+    Health check endpoint for monitoring API status.
+    
+    Returns the operational status of the API and whether the
+    ML model is successfully loaded and ready for predictions.
+    
+    Returns:
+        dict: Health status and model availability information
+    """
     return {"status": "healthy", "model_loaded": MODEL is not None}
 
 
 @app.get("/classes")
 async def get_classes():
-    """Get all supported disease classes"""
+    """
+    Get all supported tomato disease classes.
+    
+    Returns a complete list of disease classifications that the model
+    can detect, along with the total count of supported classes.
+    
+    Returns:
+        dict: Dictionary containing list of disease classes and total count
+    """
     return {
         "classes": [
             "Bacterial Spot and Speck of Tomato",
@@ -63,8 +119,27 @@ async def get_classes():
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     """
-    Endpoint to predict the class of a tomato plant disease from an image.
-    Returns class name, confidence score and the top predictions.
+    Main prediction endpoint for tomato disease detection.
+    
+    Accepts image uploads, validates that they contain plant/vegetation content,
+    and returns disease classification with confidence scores and treatment
+    recommendations. Implements multi-stage validation to ensure accuracy.
+    
+    Args:
+        file (UploadFile): Image file containing tomato plant leaf
+        
+    Returns:
+        dict: Prediction results containing:
+            - status: "success", "rejected", or "error"
+            - predicted_class: Disease classification name
+            - confidence_percentage: Prediction confidence as percentage
+            - top_predictions: Ranked list of alternative predictions
+            - recommendation: Treatment advice for detected condition
+            - validation_details: Plant validation information (if rejected)
+            
+    Raises:
+        HTTPException: If file upload or processing fails
+        ValueError: If image format is unsupported
     """
     global MODEL
     
@@ -122,7 +197,22 @@ async def predict(file: UploadFile = File(...)):
         }
 
 def get_treatment_recommendation(disease_class: str) -> str:
-    """Get treatment recommendations based on predicted disease"""
+    """
+    Get treatment recommendations based on predicted disease class.
+    
+    Provides specific, actionable treatment advice for each type of
+    tomato plant disease that can be detected by the model.
+    
+    Args:
+        disease_class (str): Name of the detected disease class
+        
+    Returns:
+        str: Detailed treatment recommendation text
+        
+    Note:
+        Recommendations are for informational purposes and should not
+        replace professional agricultural consultation for severe cases.
+    """
     recommendations = {
         "Healthy": "Your tomato plant appears healthy! Continue with regular care and monitoring.",
         "Early blight": "Apply fungicide containing chlorothalonil or copper. Improve air circulation and avoid overhead watering.",
