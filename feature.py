@@ -112,7 +112,8 @@ def load_plant_validator():
     if PLANT_VALIDATOR is None:
         try:
             log.info("Loading MobileNetV2 for plant validation...")
-            PLANT_VALIDATOR = MobileNetV2(weights='mobilenet_v2_weights_tf_dim_ordering_tf_kernels_1.0_224_no_top.h5', include_top=True)
+            # mobilenet_v2_weights_tf_dim_ordering_tf_kernels_1.0_224_no_top.h5
+            PLANT_VALIDATOR = MobileNetV2(weights='imagenet', include_top=True)
             log.info("MobileNetV2 loaded successfully...")          
 
         except Exception as e:
