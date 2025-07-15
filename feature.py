@@ -117,7 +117,7 @@ def load_plant_validator():
             log.info("MobileNetV2 loaded successfully...")          
 
         except Exception as e:
-            log.info(f"Error loading MobileNetV2...")
+            log.error(f"Error loading MobileNetV2...")
             PLANT_VALIDATOR = None
         
     return PLANT_VALIDATOR
@@ -155,7 +155,7 @@ def is_plant_image(img_array, confidence_threshold=0.1):
         for class_id, class_name, confidence in decoded:
             detected_classes.append({'class': class_name, 'confidence': float(confidence)})
 
-            # checking if class name contains plant related keywwords.
+            # checking if class name contains plant related keywords.
             class_lower = class_name.lower()
             for plant_keyword in PLANT_CLASSES:
                 if plant_keyword in class_lower or any(keyword in class_lower for keyword in ["leaf", 'plant', 'flower', 'tree', 'vegetable', 'fruit', 'herb', 'crop']):
