@@ -3,7 +3,7 @@ import sys
 import glob
 from pathlib import Path
 import numpy as np
-from loguru import logger
+from loguru import logger as log 
 from tensorflow.keras.models import load_model as tf_load_model
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications import MobileNetV2
@@ -13,10 +13,10 @@ import io
 
 root = Path(__file__).parent
 sys.path.append(str(root))
-os.makedirs(os.path.join(root, 'logs'), exist_ok=True)
+os.makedirs('log', exist_ok=True)
 
 # Configure Logger.
-log = logger.add(root, 'log', 'app.log')
+log.add('log/app.log', rotation="1 MB", retention="7 days")
 
 
 # Define the model path
@@ -94,7 +94,7 @@ def interpret_prediction(prediction_array, top_k=3):
             "predicted_class": CLASS_NAMES[np.argmax(prediction)],
             "confidence_percentage": f'{float(np.max(prediction)) * 100:.2f}%',
             "top_predictions": results
-        }
+               }
 
     except Exception as e:
         log.error(f'Error in prediction interpreting: {e}')
@@ -163,7 +163,7 @@ def is_plant_image(img_array, confidence_threshold=0.1):
 
             is_plant = plant_confidence >= confidence_threshold
 
-            return {
+        return {
                 'is_plant': is_plant,
                 'plant_confidence': float(plant_confidence),
                 "top_predictions": detected_classes[:5],
