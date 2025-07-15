@@ -16,7 +16,7 @@ sys.path.append(str(root))
 os.makedirs('log', exist_ok=True)
 
 # Configure Logger.
-log.add('log/app.log', rotation="1 MB", retention="7 days")
+log.add(os.path.join(root, 'log', 'app.log'), rotation="1 MB", retention="7 days")
 
 
 # Define the model path
@@ -168,7 +168,7 @@ def is_plant_image(img_array, confidence_threshold=0.1):
                 'is_plant': is_plant,
                 'plant_confidence': float(plant_confidence),
                 "top_predictions": detected_classes[:5],
-                'reason': "Plant detected" if is_plant else "No plant/vegetation ddetected"
+                'reason': "Plant detected" if is_plant else "No plant/vegetation detected"
             }
 
     except Exception as e:
