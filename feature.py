@@ -163,12 +163,12 @@ def is_plant_image(img_array, confidence_threshold=0.1):
 
             is_plant = plant_confidence >= confidence_threshold
 
-            return {
-                'is_plant': is_plant,
-                'plant_confidence': float(plant_confidence),
-                "top_predictions": detected_classes[:5],
-                'reason': "Plant detected" if is_plant else "No plant/vegetation ddetected"
-            }
+        return {
+            'is_plant': is_plant,
+            'plant_confidence': float(plant_confidence),
+            "top_predictions": detected_classes[:5],
+            'reason': "Plant detected" if is_plant else "No plant/vegetation ddetected"
+        }
 
     except Exception as e:
         log.error(f"Error in plant validation: {e}")
