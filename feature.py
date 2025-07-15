@@ -162,7 +162,7 @@ def is_plant_image(img_array, confidence_threshold=0.1):
                     plant_confidence = max(plant_confidence, confidence)
                     break
 
-            is_plant = plant_confidence >= confidence_threshold
+        is_plant = plant_confidence >= confidence_threshold
 
         return {
                 'is_plant': is_plant,
