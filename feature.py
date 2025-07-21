@@ -138,7 +138,7 @@ def interpret_prediction(prediction_array, top_k=3):
         results = []
         for idx in top_indices:
             results.append({
-                "class": CLASS_NAMES[idx],
+                "classes": CLASS_NAMES[idx],
                 "confidence": float(prediction[idx])
             })
         
