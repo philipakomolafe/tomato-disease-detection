@@ -178,7 +178,7 @@ async def predict(file: UploadFile = File(...)):
 
         # Interpret the prediction result..
         result = interpret_prediction(prediction)
-
+        recommendation, description = get_treatment_recommendation(result['predicted_class'])
         # Return the prediction result
         return {
             "filename": file.filename,
@@ -186,7 +186,8 @@ async def predict(file: UploadFile = File(...)):
             "predicted_class": result["predicted_class"],
             "confidence_percentage": result['confidence_percentage'],
             "top_predictions": result['top_predictions'],
-            'recommendation': get_treatment_recommendation(result['predicted_class'])
+            'recommendation': recommendation,
+            "description": description,
         }
     except Exception as e:
         return {
@@ -207,7 +208,7 @@ def get_treatment_recommendation(disease_class: str) -> str:
         disease_class (str): Name of the detected disease class
         
     Returns:
-        str: Detailed treatment recommendation text
+        str: Detailed description and treatment recommendation text
         
     Note:
         Recommendations are for informational purposes and should not
@@ -220,4 +221,13 @@ def get_treatment_recommendation(disease_class: str) -> str:
         "Bacterial Spot and Speck of Tomato": "Use copper-based bactericides. Avoid overhead irrigation and improve air circulation.",
         "Grey leaf spot (fungi)": "Apply fungicide containing azoxystrobin or propiconazole. Remove affected leaves and improve air circulation."
     }
-    return recommendations.get(disease_class, "Consult with a plant pathologist for proper treatment.")
+
+    descriptions = {
+        "Healthy": "Healthy leaf. Color is right, no spots or holes. Your crop is doing just fine.",
+        "Early blight": "Dark brown to black spots with concentric rings ("bull’s-eye") on lower leaves, often with yellowing. Caused by Alternaria solani, it thrives in warm, wet conditions.",
+        "Late Blight": "Large, irregular gray-green to dark brown spots on leaves, often with white mold in humid conditions. Caused by Phytophthora infestans, spreads rapidly in cool, wet weather.",
+        "Bacterial Spot and Speck of Tomato": " Small, water-soaked spots on leaves turn dark brown to black with yellow halos; spots may merge, causing leaf drop. Caused by Xanthomonas bacteria, spread by water splashes in warm, wet conditions.",
+        "Grey leaf spot (fungi)": "Yellow spots on upper leaf surfaces with grayish-white to olive-green mold on undersides. Caused by Fulvia fulva, favored by high humidity.",
+    }
+    
+    return recommendations.get(disease_class, "Consult with a plant pathologist for proper treatment."), descriptions.get(disease_class, "Consult with a plant pathologist for proper evaluation."), 
