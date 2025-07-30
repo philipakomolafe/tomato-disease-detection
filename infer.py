@@ -224,7 +224,7 @@ def get_treatment_recommendation(disease_class: str) -> str:
 
     descriptions = {
         "Healthy": "Healthy leaf. Color is right, no spots or holes. Your crop is doing just fine.",
-        "Early blight": "Dark brown to black spots with concentric rings ("bull’s-eye") on lower leaves, often with yellowing. Caused by Alternaria solani, it thrives in warm, wet conditions.",
+        "Early blight": "Dark brown to black spots with concentric rings on lower leaves, often with yellowing. Caused by Alternaria solani, it thrives in warm, wet conditions.",
         "Late Blight": "Large, irregular gray-green to dark brown spots on leaves, often with white mold in humid conditions. Caused by Phytophthora infestans, spreads rapidly in cool, wet weather.",
         "Bacterial Spot and Speck of Tomato": " Small, water-soaked spots on leaves turn dark brown to black with yellow halos; spots may merge, causing leaf drop. Caused by Xanthomonas bacteria, spread by water splashes in warm, wet conditions.",
         "Grey leaf spot (fungi)": "Yellow spots on upper leaf surfaces with grayish-white to olive-green mold on undersides. Caused by Fulvia fulva, favored by high humidity.",
